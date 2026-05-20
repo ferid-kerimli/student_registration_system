@@ -5,6 +5,7 @@ import com.example.student_registration_system.dto.accountDto.RegisterDto;
 import com.example.student_registration_system.response.ApiResponse;
 import com.example.student_registration_system.response.JwtTokenResponse;
 import com.example.student_registration_system.service.AccountService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Boolean>> logout() {
-        ApiResponse<Boolean> response = accountService.logout();
+    public ResponseEntity<ApiResponse<Boolean>> logout(HttpServletRequest request) {
+        ApiResponse<Boolean> response = accountService.logout(request);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 }

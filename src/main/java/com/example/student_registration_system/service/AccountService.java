@@ -7,6 +7,7 @@ import com.example.student_registration_system.entity.User;
 import com.example.student_registration_system.repository.UserRepository;
 import com.example.student_registration_system.response.ApiResponse;
 import com.example.student_registration_system.response.JwtTokenResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,7 @@ public class AccountService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
+    private final BlacklistService blacklistService;
 
     public ApiResponse<JwtTokenResponse> login(LoginDto dto) {
         ApiResponse<JwtTokenResponse> response = new ApiResponse<>();
@@ -86,13 +88,29 @@ public class AccountService {
         return response;
     }
 
-    public ApiResponse<Boolean> logout() {
+    public ApiResponse<Boolean> logout(HttpServletRequest request) {
         ApiResponse<Boolean> response = new ApiResponse<>();
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.failure("Token not found", 400);
+            return response;
+        }
+
         try {
+
+            String token = authHeader.substring(7);
+
+            blacklistService.blacklistToken(token);
+
             response.success(true, 200);
+
         } catch (Exception e) {
+
             response.failure("Logout failed", 500);
         }
+
         return response;
     }
 }
